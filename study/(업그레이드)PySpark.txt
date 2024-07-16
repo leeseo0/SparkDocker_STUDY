@@ -1,0 +1,529 @@
+## master 
+cd ~/bigdata/spark/sbin && ./start-master.sh --host 192.168.56.101
+## slave1, 2, 3
+cd ~/bigdata/spark/sbin && ./start-slave.sh spark://192.168.56.101:7077
+
+## 실행 standalone pyspark
+cd ~/bigdata/spark/bin && ./pyspark --master spark://192.168.56.101:7077
+
+
+
+data=[("Z", 1),("A", 20),("B", 30),("C", 40),("B", 30),("B", 60)]
+inputRDD = spark.sparkContext.parallelize(data)
+print(inputRDD)
+inputRDD.collect()
+py_rdd = inputRDD.collect()
+for i in py_rdd:
+   print(i[0] + "," + i[1])
+
+for i in py_rdd:
+   print(i[0] + "," + str(i[1]))
+
+
+
+listRdd = spark.sparkContext.parallelize([1,2,3,4,5,3,2])
+listRdd.collect()
+
+print("Count : "+str(listRdd.count()))
+
+print("countByValue :  "+str(listRdd.countByValue()))
+
+
+
+
+inputRDD.collect()
+listRdd.collect()
+
+print("first :  "+str(listRdd.first()))
+print("first :  "+str(inputRDD.first()))
+
+
+
+
+inputRDD.collect()
+listRdd.collect()
+
+print("top : "+str(listRdd.top(2)))
+
+print("top : "+str(inputRDD.top(2)))
+
+print("min :  "+str(listRdd.min()))
+
+print("min :  "+str(inputRDD.min()))
+
+print("max :  "+str(listRdd.max()))
+
+print("max :  "+str(inputRDD.max()))
+
+
+
+rdd = sc.parallelize(['a,b,c','d,e,f','g,h,i'])
+
+map_rdd = rdd.map(lambda x: x.split(','))
+print(map_rdd.collect())
+
+flatmap_rdd = rdd.flatMap(lambda x: x.split(','))
+print(flatmap_rdd.collect())
+
+
+
+data=[("Z", 1),("A", 20),("B", 30),("C", 40),("B", 30),("B", 60)]
+inputRDD = spark.sparkContext.parallelize(data)
+
+rdd2=inputRDD.reduceByKey(lambda a,b: a+b)
+
+rdd2.collect()
+
+for element in rdd2.collect():
+    print(element)
+
+
+
+columns = ["language","users_count"]
+data = [("Java", "20000"), ("Python", "100000"), ("Scala", "3000")]
+
+rdd = spark.sparkContext.parallelize(data)
+
+dfFromRDD = rdd.toDF()
+dfFromRDD1.printSchema()
+
+dfFromRDD1 = rdd.toDF(Columns)
+dfFromRDD1.printSchema()
+
+dfFromRDD2 = spark.createDataFrame(rdd).toDF(*columns)
+dfFromRDD2.printSchema()
+
+
+
+from pyspark.sql.types import StructType,StructField, StringType, IntegerType
+data2 = [("James","","Smith","36636","M",3000),
+    ("Michael","Rose","","40288","M",4000),
+    ("Robert","","Williams","42114","M",4000),
+    ("Maria","Anne","Jones","39192","F",4000),
+    ("Jen","Mary","Brown","","F",-1)
+]
+
+schema = StructType([ 
+    StructField("firstname",StringType(),True), 
+    StructField("middlename",StringType(),True), 
+    StructField("lastname",StringType(),True), 
+    StructField("id", StringType(), True), 
+    StructField("gender", StringType(), True), 
+    StructField("salary", IntegerType(), True)
+  ])
+ 
+df = spark.createDataFrame(data=data2,schema=schema)
+df.printSchema()
+df.show(truncate=False)
+
+
+df2 = spark.read.csv("/Test/Spark_Dataset/simple_zipcodes.csv")
+df2.show(truncate=False)
+df2 = spark.read.text("/Test/Spark_Dataset/simple_zipcodes.txt")
+df2.show(truncate=False)
+df2 = spark.read.json("/Test/Spark_Dataset/simple_zipcodes.json")
+df2.show(truncate=False)
+
+emptyRDD = spark.sparkContext.emptyRDD()
+print(emptyRDD)
+rdd2= spark.sparkContext.parallelize([])
+print(rdd2)
+
+from pyspark.sql.types import StructType,StructField, StringType
+schema = StructType([
+  StructField('firstname', StringType(), True),
+  StructField('middlename', StringType(), True),
+  StructField('lastname', StringType(), True)
+])
+df = spark.createDataFrame(emptyRDD,schema)
+df.printSchema()
+
+df1 = emptyRDD.toDF(schema)
+df1.printSchema()
+
+df2 = spark.createDataFrame([], schema)
+df2.printSchema()
+
+df3 = spark.createDataFrame([], StructType([]))
+df3.printSchema()
+
+dept = [("Finance",10),("Marketing",20),("Sales",30),("IT",40)]
+rdd = spark.sparkContext.parallelize(dept)
+deptColumns = ["dept_name","dept_id"]
+df2 = rdd.toDF(deptColumns)
+df2.printSchema()
+df2.show(truncate=False)
+
+deptDF = spark.createDataFrame(rdd, deptColumns)
+deptDF.printSchema()
+deptDF.show(truncate=False)
+
+from pyspark.sql.types import StructType,StructField, StringType
+deptSchema = StructType([       
+    StructField('dept_name', StringType(), True),
+    StructField('dept_id', StringType(), True)
+])
+deptDF1 = spark.createDataFrame(rdd, schema = deptSchema)
+deptDF1.printSchema()
+deptDF1.show(truncate=False)
+
+dept = [("Finance",10),("Marketing",20),("Sales",30),("IT",40)]
+rdd = spark.sparkContext.parallelize(dept)
+deptColumns = ["dept_name","dept_id"]
+df2 = rdd.toDF(deptColumns)
+df2.printSchema()
+df2.show(truncate=False)
+
+import pandas
+pandasDF = df2.toPandas()
+print(pandasDF)
+
+PySparkDF = spark.createDataFrame(pandasDF)
+PySparkDF.show(truncate=False)
+
+from pyspark.sql import SparkSession
+columns = ["Seqno","Quote"]
+data = [("1", "Be the change that you wish to see in the world"),
+    ("2", "Everyone thinks of changing the world, but no one thinks of changing himself."),
+    ("3", "The purpose of our lives is to be happy."),
+    ("4", "Be cool.")]
+df = spark.createDataFrame(data,columns)
+df.show()
+
+df.show(truncate=False)
+df.show(2,truncate=False) 
+df.show(2,truncate=25) 
+df.show(n=3,truncate=25,vertical=True)
+
+data=[("James",23),("Ann",40)]
+df=spark.createDataFrame(data).toDF("name.fname","gender")
+df.printSchema()
+df.select(df.gender).show()
+df.select(df["gender"]).show()
+df.select(df["`name.fname`"]).show()
+
+from pyspark.sql.functions import col
+df.select(col("gender")).show()
+df.select(col("`name.fname`")).show()
+
+from pyspark.sql import Row
+data=[Row(name="James",prop=Row(hair="black",eye="blue")),
+      Row(name="Ann",prop=Row(hair="grey",eye="black"))]
+df=spark.createDataFrame(data)
+df.printSchema()
+df.show()
+
+df.select(df.prop.hair).show()
+df.select(df["prop.hair"]).show()
+df.select(col("prop.hair")).show()
+df.select(col("prop.*")).show()
+
+data=[(100,2,1),(200,3,4),(300,4,4)]
+df=spark.createDataFrame(data).toDF("col1","col2","col3")
+
+df.select(df.col1 + df.col2).show()
+df.select(df.col1 - df.col2).show() 
+df.select(df.col1 * df.col2).show()
+df.select(df.col1 / df.col2).show()
+df.select(df.col1 % df.col2).show()
+df.select(df.col2 > df.col3).show()
+df.select(df.col2 < df.col3).show()
+df.select(df.col2 == df.col3).show()
+
+data=[("James","Bond","100",None),
+      ("Ann","Varsa","200",'F'),
+      ("Tom Cruise","XXX","400",''),
+      ("Tom Brand",None,"400",'M')] 
+columns=["fname","lname","id","gender"]
+df=spark.createDataFrame(data,columns)
+df.show()
+
+df.select(df.fname.alias("first_name"), df.lname.alias("last_name")).show()
+
+from pyspark.sql.functions import expr
+df.select(expr(" fname ||','|| lname").alias("fullName")).show()
+
+df.sort(df.fname.asc()).show()
+df.sort(df.fname.desc()).show()
+
+df.printSchema()
+df.select(df.fname,df.id.cast("int")).printSchema()
+
+df.filter(df.id.between(100,300)).show()
+df.filter(df.fname.contains("Cruise")).show()
+df.filter(df.fname == "Cruise").show()
+df.filter(df.fname == "Tom Cruise").show()
+
+df.filter(df.fname.startswith("T")).show()
+df.filter(df.fname.endswith("Cruise")).show()
+
+df.filter(df.lname.isNull()).show()
+df.filter(df.lname.isNotNull()).show()
+
+df.select(df.fname.substr(1,2).alias("substr")).show()
+
+df.show()
+
+from pyspark.sql.functions import when
+df.select(df.fname,df.lname,when(df.gender=="M","Male")
+.when(df.gender=="F","Female")
+.alias("new_gender")).show()
+
+li=["100","200"]
+df.select(df.fname,df.lname,df.id).filter(df.id.isin(li)).show()
+
+df.show()
+df.select(df.columns[:3]).show(3)
+df.select(df.columns[2:4]).show(3)
+
+from pyspark.sql.functions import col
+df2 = df.withColumn("id",col("id").cast("Integer"))
+df2.printSchema()
+df.printSchema()
+
+df3 = df.withColumn("id",col("id")*100)
+df3.show()
+df.show() 
+
+df4 = df.withColumn("new_id",col("id")* -1)
+df4.show()
+df.show()
+
+df5 = df.withColumnRenamed("id","new_id")
+df5.show()
+df.show()
+
+df.show()
+df.withColumnRenamed("id","new_id").withColumnRenamed("fname", "new_fname").show()
+
+newColumns = ["newCol1","newCol2","newCol3","newCol4"]
+new_df = df.toDF(*newColumns)
+new_df.show()
+df.show()
+
+df6 = df.drop("gender")
+df6.show()
+df.show()
+
+df.show()
+df.filter(df.fname == "James").show()
+df.filter(df.fname != "James").show() 
+df.filter(~(df.fname == "James")).show()
+
+df.show()
+df.filter("gender == 'M'").show()
+df.filter("gender != 'M'").show()
+df.filter("gender <> 'M'").show()
+
+df.show()
+df.filter((df.gender == "F") & (df.fname == "Ann")).show(truncate=False)  
+
+df.show()
+df.filter(df.fname.like("Tom%")).show()
+
+data = [("James", "Sales", 3000),
+  ("Robert", "Sales", 4100),
+  ("Maria", "Finance", 3000),
+  ("James", "Sales", 3000),
+  ("Scott", "Finance", 3000),
+  ("Jen", "Finance", 3900),
+  ("Maria", "Finance", 3000),
+]
+columns= ["employee_name", "department", "salary"]
+df = spark.createDataFrame(data = data, schema = columns)
+df.printSchema()
+df.show(truncate=False)
+
+distinctDF = df.distinct()
+print("Distinct count: "+str(distinctDF.count()))
+distinctDF.show(truncate=False)
+
+df2 = df.dropDuplicates()
+print("Distinct count: "+str(df2.count()))
+df2.show(truncate=False)
+
+df.show()
+dropDisDF = df.dropDuplicates(["department","salary"])
+print("Distinct count of department & salary : "+str(dropDisDF.count()))
+dropDisDF.show(truncate=False)
+
+df.show()
+df.sort("department","salary").show()
+df.sort(col("department"),col("salary")).show()
+
+df.orderBy("department","salary").show()
+df.orderBy(col("department"),col("salary")).show()
+
+df.sort(df.department.asc(),df.salary.desc()).show()
+df.sort(col("department").asc(),col("salary").desc()).show()
+df.orderBy(col("department").asc(),col("salary").desc()).show()
+
+df.createOrReplaceTempView("ViewFrame")
+spark.sql("select department, salary from ViewFrame ORDER BY department asc").show()
+
+df.show()
+df.groupBy("department").count().show()
+
+df.groupBy("department").sum("salary").show()
+df.groupBy("department").min("salary").show()
+df.groupBy("department").max("salary").show()
+df.groupBy("department").avg( "salary").show()
+df.groupBy("department").mean( "salary") .show()
+
+df.groupBy("employee_name","department").sum("salary").show()
+
+emp = [(1,"Smith",-1,"2018","10","M",3000),
+(2,"Rose",1,"2010","20","M",4000),
+(3,"Williams",1,"2010","10","M",1000),
+(4,"Jones",2,"2005","10","F",2000),
+(5,"Brown",2,"2010","40","",-1),
+(6,"Brown",2,"2010","50","",-1)]
+empColumns = ["emp_id","name","superior_emp_id","year_joined","emp_dept_id","gender","salary"]
+empDF = spark.createDataFrame(data=emp, schema = empColumns)
+empDF.printSchema()
+empDF.show(truncate=False)
+
+dept = [("Finance",10),("Marketing",20),("Sales",30),("IT",40)]
+deptColumns = ["dept_name","dept_id"]
+deptDF = spark.createDataFrame(data=dept, schema = deptColumns)
+deptDF.printSchema()
+deptDF.show(truncate=False)
+
+# inner join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"inner").show()
+
+#full outer join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"outer").show()
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"full").show()
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"fullouter").show()
+
+#left outer join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"left").show()
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"leftouter").show()
+
+#right outer join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"right").show()
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"rightouter").show()
+
+#left semi join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"leftsemi").show()
+
+#left anti join
+empDF.join(deptDF,empDF.emp_dept_id ==  deptDF.dept_id,"leftanti").show()
+
+#self join
+empDF.alias("emp1").join(empDF.alias("emp2"), 
+col("emp1.superior_emp_id") == col("emp2.emp_id"),"inner").select(col("emp1.emp_id"),col("emp1.name"),
+col("emp2.emp_id").alias("superior_emp_id"), col("emp2.name").alias("superior_emp_name")).show()
+
+simpleData = [("A","B","C"), ("A","B","D"), ("A","B","E"), ("A","B","F"), ("A","B","D")]
+columns = ["col_1","col_2","col_3"]
+df = spark.createDataFrame(data = simpleData, schema = columns)
+df.printSchema()
+df.show(truncate=False)
+
+simpleData2 = [("A","B","G"), ("A","B","H"), ("A","B","I"), ("A","B","F"), ("A","B","D")]
+columns2 = ["col_1","col_2","col_3"]
+df2 = spark.createDataFrame(data = simpleData2, schema = columns2)
+df2.printSchema()
+df2.show(truncate=False)
+
+unionDF = df.union(df2)
+unionDF.show()
+
+disDF = df.union(df2).distinct()
+disDF.show()
+
+def convertCase(str):
+    resStr=""
+    arr = str.split(" ")
+    for x in arr:
+       resStr= resStr + x[0:1].upper() + x[1:len(x)] + " "
+    return resStr
+
+columns = ["Seqno","Name"]
+data = [("1", "john jones"),("2", "tracey smith"),("3", "amy sanders")]
+df = spark.createDataFrame(data,columns)
+df.show()
+
+
+from pyspark.sql.functions import udf
+convertUDF = udf(lambda z: convertCase(z))
+df.select(col("Seqno"),convertUDF(col("Name")).alias("Name") ).show()
+
+rdd = sc.parallelize(['A,B,C','D,E,F','G,H,I'])
+
+map_rdd = rdd.map(lambda x: x.split(','))
+print(map_rdd.collect())
+
+flatmap_rdd = rdd.flatMap(lambda x: x.split(','))
+print(flatmap_rdd.collect())
+
+data = [('James','Smith','M',30),('Anna','Rose','F',41),('Robert','Williams','M',62)]
+columns = ["firstname","lastname","gender","salary"]
+df = spark.createDataFrame(data=data, schema = columns)
+df.show()
+
+rdd2=df.rdd.map(lambda x: (x[0] + "," + x[1], x[2], x[3]*2))
+print(rdd2.collect())
+
+rdd3=df.rdd.flatMap(lambda x: (x[0] + "," + x[1], x[2], x[3]*2))  
+print(rdd3.collect())
+
+df=spark.range(20)
+sample_df = df.sample(0.2)
+sample_df.show()
+
+df.sample(0.2,123).show()
+df.sample(0.2,123).show()
+df.sample(0.2,456).show()
+df.sample(0.2,456).show()
+
+df.sample(True,0.2).show()
+df.sample(0.2).show()
+
+df = spark.read.options(header='true', inferSchema='true').csv("/Test/Spark_Dataset/small_zipcode.csv")
+df.printSchema()
+df.show(truncate=False)
+
+df.na.fill(value=0).show()
+df.na.fill(value=0,subset=["population"]).show()
+
+df.na.fill("unknown",["city"]).na.fill("",["type"]).show()
+df.na.fill({"city": "unknown", "type": ""}).show()
+
+data = [("Banana",1000,"USA"), ("Carrots",1500,"USA"), ("Beans",1600,"USA"),
+      ("Banana",2000,"Canada"),("Carrots",2000,"Canada"),("Beans",2000,"Mexico")]
+columns= ["Product","Amount","Country"]
+df = spark.createDataFrame(data = data, schema = columns)
+df.printSchema()
+df.show(truncate=False)
+
+pivotDF = df.groupBy("Product").pivot("Country").sum("Amount")
+pivotDF.printSchema()
+pivotDF.show(truncate=False)
+
+data = [("James,,Smith",["Java","Scala","C++"],["Spark","Java"],"OH","CA")]
+from pyspark.sql.types import StringType, ArrayType,StructType,StructField
+schema = StructType([ 
+    StructField("name",StringType(),True), 
+    StructField("languagesAtSchool",ArrayType(StringType()),True), 
+    StructField("languagesAtWork",ArrayType(StringType()),True), 
+    StructField("currentState", StringType(), True), 
+    StructField("previousState", StringType(), True)
+])
+df = spark.createDataFrame(data=data,schema=schema)
+df.printSchema()
+df.show()
+
+from pyspark.sql.functions import explode
+df.select(df.name,explode(df.languagesAtSchool)).show()
+
+from pyspark.sql.functions import split
+df.select(split(df.name,",").alias("nameAsArray")).show()
+
+from pyspark.sql.functions import array
+df.select(df.name,array(df.currentState,df.previousState).alias("States")).show()
+
+from pyspark.sql.functions import array_contains
+df.select(df.name,array_contains(df.languagesAtSchool,"Java").alias("array_contains")).show()
